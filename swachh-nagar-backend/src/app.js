@@ -11,12 +11,12 @@ const requestId = require('./middleware/requestId.middleware');
 const errorHandler = require('./middleware/errorHandler.middleware');
 const ApiError = require('./utils/ApiError');
 const logger = require('./config/logger');
-const { isClientOriginAllowed } = require('./config/corsOrigins');
+const { isClientOriginAllowed, parseClientOrigins } = require('./config/corsOrigins');
 
 const app = express();
 
-// Security
-app.use(helmet());
+// Security — CORP same-origin blocks cross-site credentialed fetch reads; API is called from Vercel etc.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
   origin: (origin, callback) => {
     if (isClientOriginAllowed(origin)) return callback(null, true);
@@ -24,7 +24,14 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
+
+if (process.env.NODE_ENV === 'production' && parseClientOrigins().length === 0) {
+  logger.warn(
+    'CLIENT_URL / CLIENT_URLS is not set: only localhost browser origins are allowed. Set CLIENT_URL=https://your-app.vercel.app on Render (redeploy after saving).'
+  );
+}
 
 // Rate limiting — disabled in development
 const isDev = process.env.NODE_ENV !== 'production';
