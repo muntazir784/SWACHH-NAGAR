@@ -11,6 +11,7 @@ const requestId = require('./middleware/requestId.middleware');
 const errorHandler = require('./middleware/errorHandler.middleware');
 const ApiError = require('./utils/ApiError');
 const logger = require('./config/logger');
+const { isClientOriginAllowed } = require('./config/corsOrigins');
 
 const app = express();
 
@@ -18,10 +19,7 @@ const app = express();
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl) and any localhost port in dev
-    if (!origin || /^http:\/\/localhost:\d+$/.test(origin) || origin === (process.env.CLIENT_URL || '')) {
-      return callback(null, true);
-    }
+    if (isClientOriginAllowed(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,

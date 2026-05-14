@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const logger = require('./logger');
+const { isClientOriginAllowed } = require('./corsOrigins');
 
 let io;
 
@@ -7,9 +8,7 @@ const init = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
       origin: (origin, cb) => {
-        if (!origin || /^http:\/\/localhost:\d+$/.test(origin) || origin === (process.env.CLIENT_URL || '')) {
-          return cb(null, true);
-        }
+        if (isClientOriginAllowed(origin)) return cb(null, true);
         cb(new Error('Not allowed by CORS'));
       },
       methods: ['GET', 'POST'],

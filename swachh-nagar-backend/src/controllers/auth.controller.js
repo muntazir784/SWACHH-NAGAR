@@ -5,7 +5,8 @@ const ApiResponse = require('../utils/ApiResponse');
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  // Cross-origin SPA (e.g. Vercel → Render) must use none + secure so refresh cookie is sent with API calls
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -23,7 +24,11 @@ const login = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
   await authService.logout(req.user._id);
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  });
   res.json(new ApiResponse(200, null, 'Logged out successfully'));
 });
 
