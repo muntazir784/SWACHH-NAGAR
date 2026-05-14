@@ -29,7 +29,17 @@ app.use(cors({
 
 if (process.env.NODE_ENV === 'production' && parseClientOrigins().length === 0) {
   logger.warn(
-    'CLIENT_URL / CLIENT_URLS is not set: only localhost browser origins are allowed. Set CLIENT_URL=https://your-app.vercel.app on Render (redeploy after saving).'
+    'CLIENT_URL / CLIENT_URLS is not set: CORS still allows https://swachh-nagar.vercel.app (built-in). Add CLIENT_URLS if you use Vercel preview URLs or another domain.'
+  );
+}
+
+const envOrigins = parseClientOrigins();
+if (
+  process.env.NODE_ENV === 'production' &&
+  envOrigins.some((o) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(o))
+) {
+  logger.warn(
+    'CLIENT_URL / CLIENT_URLS includes localhost while NODE_ENV is production; https://swachh-nagar.vercel.app remains allowed via built-in default. Prefer setting your real deployed frontend URL on Render.'
   );
 }
 
