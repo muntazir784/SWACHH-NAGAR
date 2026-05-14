@@ -1,11 +1,12 @@
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from './publicEnv';
 
 let socket = null;
 
 export const connectSocket = (token) => {
   if (socket?.connected) return socket;
 
-  socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001', {
+  socket = io(SOCKET_URL, {
     auth: { token },
     reconnection: true,
     reconnectionAttempts: 5,

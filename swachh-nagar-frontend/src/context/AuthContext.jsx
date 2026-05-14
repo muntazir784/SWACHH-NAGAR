@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import api from '../config/axios';
+import { API_BASE_URL } from '../config/publicEnv';
 import { connectSocket, disconnectSocket } from '../config/socket';
 
 const AuthContext = createContext(null);
@@ -29,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Use a plain axios call so our interceptor doesn't try to refresh on this specific 401
-    axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1'}/auth/me`, {
+    axios.get(`${API_BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true,
     })
