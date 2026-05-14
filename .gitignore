@@ -1,0 +1,12 @@
+**/node_modules/
+.env
+.env.*
+!.env.example
+**/logs/
+**/dist/
+**/coverage/
+*.log
+.DS_Store
+swachh-nagar-backend/src/ai/model/
+.idea/
+.vscode/
