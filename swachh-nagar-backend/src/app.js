@@ -73,6 +73,11 @@ app.use(mongoSanitize());
 app.use(requestId);
 app.use(morgan('combined', { stream: { write: (msg) => logger.http(msg.trim()) } }));
 
+// Render and other platforms probe GET / or HEAD / — avoid 404 + error logs
+app.get('/', (_req, res) => {
+  res.status(200).json({ ok: true, service: 'swachh-nagar-api', health: '/api/v1/health' });
+});
+
 // Routes
 app.use('/api/v1', require('./routes/index'));
 
